@@ -1,5 +1,5 @@
-get-dependencies:
-	GO111MODULE=on go get ./...
+install:
+	go install ./...
 
 build:
-	go build -o bin/benchmark-cpu-usage-queries benchmarking-tool/cmd/benchmark-cpu-usage-queries/main.go
+	go build -o bin/benchmark-cpu-usage-queries cmd/benchmark-cpu-usage-queries/main.go

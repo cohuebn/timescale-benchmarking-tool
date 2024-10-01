@@ -1,4 +1,4 @@
-module github.com/cohuebn/timescalebenchmarkingtool
+module github.com/cohuebn/timescale-benchmarking-tool
 
 go 1.21
 
