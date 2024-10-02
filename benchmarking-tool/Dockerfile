@@ -1,4 +1,4 @@
-FROM golang:1.23 AS builder
+FROM golang:1.23.2-alpine3.20 AS builder
 
 WORKDIR /benchmarking-tool
 
@@ -11,7 +11,7 @@ RUN go mod download
 COPY . .
 RUN go build -o bin/benchmark-cpu-usage-queries cmd/benchmark-cpu-usage-queries/main.go
 
-FROM scratch
+FROM golang:1.23.2-alpine3.20
 
 WORKDIR /benchmarking-tool
 COPY --from=builder /benchmarking-tool/bin/benchmark-cpu-usage-queries .
