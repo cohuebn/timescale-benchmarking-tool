@@ -12,4 +12,4 @@ docker build -t benchmarking-tool $script_directory
 # Find the network name of the Docker Compose stack
 docker_network=$(docker network ls --filter name=timescale-benchmarking --format "{{.Name}}")
 # Run the container
-docker run --env-file ../local.env --network $docker_network benchmarking-tool
+docker run --env-file $script_directory/../local.env --network $docker_network benchmarking-tool
