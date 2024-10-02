@@ -9,11 +9,11 @@ RUN go mod download
 
 # Copy the source code and build the cpu usage queries benchmarking tool
 COPY . .
-RUN go build -o bin/benchmark-cpu-usage-queries cmd/benchmark-cpu-usage-queries/main.go
+RUN go build -o bin/benchmarking-tool cmd/benchmarking-tool/main.go
 
 FROM golang:1.23.2-alpine3.20
 
 WORKDIR /benchmarking-tool
-COPY --from=builder /benchmarking-tool/bin/benchmark-cpu-usage-queries .
+COPY --from=builder /benchmarking-tool/bin/benchmarking-tool .
 
-ENTRYPOINT [ "./benchmark-cpu-usage-queries" ]
+ENTRYPOINT [ "./benchmarking-tool" ]
