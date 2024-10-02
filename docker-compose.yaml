@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   db:
-    image: timescale/timescaledb-ha:pg14
+    image: timescale/timescaledb:2.16.1-pg16
     ports:
       - "${DB_PORT}:${DB_PORT}"
     environment:
@@ -29,6 +29,20 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
+    networks:
+      - timescale-benchmarking
+  benchmarking-tool:
+    build: ./benchmarking-tool
+    depends_on:
+      - db
+    environment:
+      - BENCHMARKING_TOOL_DATABASE_HOST=${DB_INTERNAL_HOST}
+      - BENCHMARKING_TOOL_DATABASE_PORT=${DB_PORT}
+      - BENCHMARKING_TOOL_DATABASE_NAME=${DB_NAME}
+      - BENCHMARKING_TOOL_DATABASE_USERNAME=${BENCHMARKING_USER}
+      - BENCHMARKING_TOOL_DATABASE_PASSWORD=${BENCHMARKING_PASSWORD}
+    profiles:
+      - run-manually
     networks:
       - timescale-benchmarking
 

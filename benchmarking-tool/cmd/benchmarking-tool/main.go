@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/cli"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
@@ -13,9 +12,10 @@ func main() {
 	cliArguments := cli.ParseCliArguments()
 	
 	// Initialize the connection pool to the database
-	connectionString := os.Getenv("DATABASE_CONNECTION_STRING")
+	connectionString := cli.CreateConnectionString(cliArguments)
 	connectionPool, err := database.CreateConnectionPool(connectionString)
 	if (err != nil) {
+		// If we can't connect to the database, there's no point in continuing
 		log.Panic(err)
 	}
 	defer connectionPool.Close()
