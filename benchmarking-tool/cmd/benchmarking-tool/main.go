@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/cli"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,9 +31,29 @@ func main() {
 	connectionPool := setupConnectionPool(cliArguments)
 	defer connectionPool.Close()
 
+	// Read the CSV file and stream its contents
+	csvStream := csv.StreamCsvFile(cliArguments.Filename)
+	// For now, just get a count of query params in the CSV; this is
+	// just a sanity check to test integration but will be removed later
+	var headerRow []string
+	queryCount := 0
+	for csvRow := range csvStream {
+		if csvRow.Error != nil {
+			log.Panic(csvRow.Error)
+		}
+		if headerRow == nil {
+			headerRow = csvRow.Row
+		} else {
+			queryParams := queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
+			slog.Debug("Parsed query params", "queryParams", queryParams)
+			queryCount++
+		}
+	}
+
 	connectivityCheck := database.RunConnectivityCheck(connectionPool)
-	
+
 	fmt.Println("This is a stub for the benchmarking-tool command; it is not yet implemented.")
-	fmt.Printf("The filename is: %s and the number of workers is %d\n", cliArguments.Filename, cliArguments.Workers)
+	fmt.Printf("Running with %d worker(s)\n", cliArguments.Workers)
+	fmt.Printf("Read the CSV file: %s. Would've run %d queries\n", cliArguments.Filename, queryCount)
 	fmt.Printf("Database connectivity check result: %t\n", connectivityCheck.SuccessfulConnection)
 }

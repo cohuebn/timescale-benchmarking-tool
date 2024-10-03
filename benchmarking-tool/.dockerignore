@@ -1,0 +1,10 @@
+# Ignore .git/IDE files
+.git/
+.vscode/
+# Ignore build artifacts
+bin/
+pkg/
+vendor/
+# Ignore test files
+*_test.go
+testdata/

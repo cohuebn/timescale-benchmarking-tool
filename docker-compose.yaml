@@ -41,6 +41,8 @@ services:
       - BENCHMARKING_TOOL_DATABASE_NAME=${DB_NAME}
       - BENCHMARKING_TOOL_DATABASE_USERNAME=${BENCHMARKING_USER}
       - BENCHMARKING_TOOL_DATABASE_PASSWORD=${BENCHMARKING_PASSWORD}
+    volumes:
+      - ./sample-csv-files:/sample-csv-files
     profiles:
       - run-manually
     networks:
