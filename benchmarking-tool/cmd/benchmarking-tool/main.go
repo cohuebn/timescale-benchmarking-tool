@@ -8,6 +8,7 @@ import (
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv_processor"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/reporting"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -35,6 +36,6 @@ func main() {
 	csvStream := csv.StreamCsvFile(cliArguments.Filename)
 	// Process all rows and aggregate results
 	results := csv_processor.ProcessCsv(cliArguments.Workers, connectionPool, csvStream)
-
-	slog.Info("Benchmarking results", "results", results)
+	slog.Info("Benchmarking tool finished. Results below")
+	reporting.LogAggregatedCpuUsageResultsToConsole(results)
 }

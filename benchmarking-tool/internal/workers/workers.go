@@ -4,6 +4,7 @@ import (
 	"log/slog"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -34,7 +35,7 @@ func makeWorkerChannels(numberOfWorkers int) []chan queries.CpuUsageQueryParams 
 
 // Measure CPU usage queries using a pool of workers to run those queries
 // Return all recorded query measurements
-func MeasureCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan queries.CpuUsageQueryParams) AggregatedCpuUsageResults {
+func MeasureCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan queries.CpuUsageQueryParams) results.AggregatedCpuUsageResults {
 	// Setup channels for workers to receive requests and send responses
 	// Each worker gets its own channel to receive requests on
 	requestChannels := makeWorkerChannels(numberOfWorkers)

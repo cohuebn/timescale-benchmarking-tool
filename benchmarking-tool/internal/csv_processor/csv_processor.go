@@ -6,6 +6,7 @@ import (
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/workers"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -47,7 +48,7 @@ func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan querie
 }
 
 // Stream CSV rows through worker pools, run queries using those workers, and return aggregate results
-func ProcessCsv(numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult) workers.AggregatedCpuUsageResults {
+func ProcessCsv(numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult) results.AggregatedCpuUsageResults {
 	queryParamsStream := getQueryParamsStream(csvStream)
 	return workers.MeasureCpuUsageQueries(numberOfWorkers, connectionPool, queryParamsStream)
 }

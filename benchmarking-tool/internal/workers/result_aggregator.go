@@ -5,18 +5,8 @@ import (
 	"time"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
 )
-
-// The results of aggregating multiple CPU usage queries
-type AggregatedCpuUsageResults struct {
-	NumberOfQueriesProcessed int
-	ErrorCount int
-	TotalProcessingTime time.Duration
-	MinimumQueryTime time.Duration
-	MaximumQueryTime time.Duration
-	MeanQueryTime time.Duration
-	MedianQueryTime time.Duration
-}
 
 // A structure that can be used to aggregate the results of multiple CPU usage queries
 type ResultAggregator struct {
@@ -102,10 +92,10 @@ func getMedian(queryTimes []time.Duration) time.Duration {
 	return (sortedQueryTimes[middleDurationIndex - 1] + sortedQueryTimes[middleDurationIndex]) / 2.0
 }
 
-func (aggregator *ResultAggregator) CalculateAggregates() AggregatedCpuUsageResults {
+func (aggregator *ResultAggregator) CalculateAggregates() results.AggregatedCpuUsageResults {
 	// Calculate the median query time; all other values can be calculated in a streaming fashion
 	medianQueryTime := getMedian(aggregator.queryTimes)
-	return AggregatedCpuUsageResults{
+	return results.AggregatedCpuUsageResults{
 		NumberOfQueriesProcessed: aggregator.numberOfQueriesProcessed,
 		ErrorCount: aggregator.errorCount,
 		TotalProcessingTime: aggregator.totalProcessingTime,
