@@ -12,8 +12,7 @@ If you want to run entirely in Docker, none of the subsequent dependencies are n
 run the benchmarking tool Go application outside Docker, the following will either be needed or helpful:
 
 1. [Go](https://go.dev/doc/install) (Required) - Go is needed to compile, test, etc.
-2. [Make](https://www.gnu.org/software/make/) (Optional) - Make is not required, but the included Makefile can simplify
-   installing, building, etc.
+2. [Make](https://www.gnu.org/software/make/) (Optional) - Make is not required, but the included [Makefile](./benchmarking-tool/Makefile) can simplify installing, building, etc. See the targets in that file for `install`, `build`, etc.
 
 ## Running locally
 
