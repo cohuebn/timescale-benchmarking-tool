@@ -22,15 +22,14 @@ This section details how to run the tool locally.
 
 The simplest way to test this tool is to run it within Docker/Docker Compose. To do so, take the following steps:
 
-1. Ensure you have [Docker/Docker Compose installed](https://docs.docker.com/compose/install/).
-2. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
-3. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/query-params.csv`.
+1. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
+2. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/query-params.csv`.
 
 ### Running the benchmarking tool outside of Docker
 
 You might want to run the tool outside of Docker (faster debugging, connecting to databases outside Docker, etc.). In case you want to run the benchmarking tool outside of Docker, take the following steps:
 
-1. You still need to run the database in Docker Compose. Run steps 1 and 2 in the [Running locally via Docker](#running-locally-via-docker) section above
+1. You still need to run the database in Docker Compose. Run steps 1 from the [Running locally via Docker](#running-locally-via-docker) section above
 2. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
 3. Ensure you have all dependencies installed. Run: `go mod download`
 4. Run the benchmarking tool against the Docker database. A helper script has been created to automatically wire up to that database. Run: `./run-against-local-database.sh`.
@@ -48,3 +47,11 @@ This directory contains a the following files for testing the tool:
 
 - [query_params.csv](./query-params/query-params.csv): This is the file provided as part of the assignment by Timescale
 - [reordered-headers.csv](./query-params/reordered-headers.csv): This contains the same data as [query_params.csv](./query-params/query-params.csv), but the `hostname` header has been moved to the end of the file to test handling any order of the three required columns
+
+## Running tests
+
+If you'd like to run unit tests, take the following steps:
+
+1. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
+2. Ensure you've downloaded all dependencies locally: `go mod download`
+3. Run all tests: `go test ./...`
