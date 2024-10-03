@@ -1,4 +1,4 @@
-package csv
+package cpu_usage
 
 import (
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/collections"
@@ -12,7 +12,8 @@ type CpuUsageRow struct {
 	EndTime string
 }
 
-func ParseCpuUsageRow(headers []string, row []string) CpuUsageRow {
+// Parse a row of CPU usage data from a CSV file
+func ParseCsvRow(headers []string, row []string) CpuUsageRow {
 	return CpuUsageRow{
 		Hostname: row[collections.IndexOf(headers, "hostname")],
 		StartTime: row[collections.IndexOf(headers, "start_time")],

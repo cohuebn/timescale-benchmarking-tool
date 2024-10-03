@@ -1,4 +1,4 @@
-package csv
+package cpu_usage
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ func TestParseCpuUsageRow(t *testing.T) {
 	headers := []string{"hostname", "start_time", "end_time"}
 	row := []string{"host_000008", "2017-01-01 08:59:22", "2017-01-01 09:59:22"}
 
-	result := ParseCpuUsageRow(headers, row)
+	result := ParseCsvRow(headers, row)
 
 	assert.Equal(t, result.Hostname, "host_000008")
 	assert.Equal(t, result.StartTime, "2017-01-01 08:59:22")
@@ -21,7 +21,7 @@ func TestParseCpuUsageRowVariedHeaderOrder(t *testing.T) {
 	headers := []string{"end_time", "start_time", "hostname"}
 	row := []string{"2017-01-01 09:59:22", "2017-01-01 08:59:22", "host_000008" }
 
-	result := ParseCpuUsageRow(headers, row)
+	result := ParseCsvRow(headers, row)
 
 	assert.Equal(t, result.Hostname, "host_000008")
 	assert.Equal(t, result.StartTime, "2017-01-01 08:59:22")
