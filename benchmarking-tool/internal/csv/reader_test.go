@@ -1,4 +1,4 @@
-package csvs
+package csv
 
 import (
 	"testing"
