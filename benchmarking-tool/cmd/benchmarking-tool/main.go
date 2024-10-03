@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"log/slog"
 
@@ -33,27 +32,35 @@ func main() {
 
 	// Read the CSV file and stream its contents
 	csvStream := csv.StreamCsvFile(cliArguments.Filename)
-	// For now, just get a count of query params in the CSV; this is
+	// For now, just get a count of query params in the CSV and run a single query; this is
 	// just a sanity check to test integration but will be removed later
 	var headerRow []string
-	queryCount := 0
+	var firstQueryResult *queries.QueryMeasurement
+	queryParamsCount := 0
 	for csvRow := range csvStream {
 		if csvRow.Error != nil {
 			log.Panic(csvRow.Error)
 		}
 		if headerRow == nil {
 			headerRow = csvRow.Row
-		} else {
-			queryParams := queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
-			slog.Debug("Parsed query params", "queryParams", queryParams)
-			queryCount++
+			// TODO - get rid of continue control flow by breaking out functions
+			// for different paths
+			continue
+		} 
+		
+		queryParams := queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
+		if (firstQueryResult == nil) {
+			measurement := queries.MeasureCpuUsageQuery(connectionPool, queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row))
+			firstQueryResult = &measurement
 		}
+		slog.Debug("Parsed query params", "queryParams", queryParams)
+		queryParamsCount++
 	}
 
 	connectivityCheck := database.RunConnectivityCheck(connectionPool)
 
-	fmt.Println("This is a stub for the benchmarking-tool command; it is not yet implemented.")
-	fmt.Printf("Running with %d worker(s)\n", cliArguments.Workers)
-	fmt.Printf("Read the CSV file: %s. Would've run %d queries\n", cliArguments.Filename, queryCount)
-	fmt.Printf("Database connectivity check result: %t\n", connectivityCheck.SuccessfulConnection)
+	slog.Info("Benchmarking tool started", "filename", cliArguments.Filename, "workers", cliArguments.Workers)
+	slog.Info("CSV file read and parsed", "parsedRowCount", queryParamsCount)
+	slog.Info("Database connectivity check", "successfulConnection", connectivityCheck.SuccessfulConnection)
+	slog.Info("First query result", "queryResult", *firstQueryResult)
 }

@@ -8,7 +8,7 @@ To run the benchmarking tool locally within Docker/Docker Compose, take the foll
 
 1. Ensure you have [Docker/Docker Compose installed](https://docs.docker.com/compose/install/).
 2. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
-3. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run benchmarking-tool --filename=/query-params/query-params.csv`.
+3. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/query-params.csv`.
 
 ### Sample CSV files
 
