@@ -21,7 +21,7 @@ type CliArguments struct {
 // Parse the command line arguments from user input
 func ParseCliArguments() CliArguments {
 	flagSet := flag.NewFlagSet("benchmarking-tool", flag.ExitOnError)
-	filename := flagSet.String("filename", "cpu-usage-queries.txt", "The name of the file providing query inputs.")
+	filename := flagSet.String("filename", "../query-params/query-params.csv", "The name of the file providing query inputs.")
 	workers := flagSet.Int("workers", 1, "The number of workers to use for running concurrent queries.")
 	dbHost := flagSet.String("database-host", "localhost", "The database host.")
 	dbPort := flagSet.Int("database-port", 5432, "The database port.")

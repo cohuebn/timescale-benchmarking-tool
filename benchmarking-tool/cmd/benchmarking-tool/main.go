@@ -6,8 +6,8 @@ import (
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/cli"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv_processor"
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -25,42 +25,16 @@ func setupConnectionPool(cliArguments cli.CliArguments) *pgxpool.Pool {
 
 func main() {
 	cliArguments := cli.ParseCliArguments()
+	slog.Info("Benchmarking tool started", "filename", cliArguments.Filename, "workers", cliArguments.Workers)
 	
 	// Initialize the connection pool to the database
 	connectionPool := setupConnectionPool(cliArguments)
 	defer connectionPool.Close()
-
+	
 	// Read the CSV file and stream its contents
 	csvStream := csv.StreamCsvFile(cliArguments.Filename)
-	// For now, just get a count of query params in the CSV and run a single query; this is
-	// just a sanity check to test integration but will be removed later
-	var headerRow []string
-	var firstQueryResult *queries.QueryMeasurement
-	queryParamsCount := 0
-	for csvRow := range csvStream {
-		if csvRow.Error != nil {
-			log.Panic(csvRow.Error)
-		}
-		if headerRow == nil {
-			headerRow = csvRow.Row
-			// TODO - get rid of continue control flow by breaking out functions
-			// for different paths
-			continue
-		} 
-		
-		queryParams := queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
-		if (firstQueryResult == nil) {
-			measurement := queries.MeasureCpuUsageQuery(connectionPool, queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row))
-			firstQueryResult = &measurement
-		}
-		slog.Debug("Parsed query params", "queryParams", queryParams)
-		queryParamsCount++
-	}
+	// Process all rows and aggregate results
+	results := csv_processor.ProcessCsv(cliArguments.Workers, connectionPool, csvStream)
 
-	connectivityCheck := database.RunConnectivityCheck(connectionPool)
-
-	slog.Info("Benchmarking tool started", "filename", cliArguments.Filename, "workers", cliArguments.Workers)
-	slog.Info("CSV file read and parsed", "parsedRowCount", queryParamsCount)
-	slog.Info("Database connectivity check", "successfulConnection", connectivityCheck.SuccessfulConnection)
-	slog.Info("First query result", "queryResult", *firstQueryResult)
+	slog.Info("Benchmarking results", "results", results)
 }

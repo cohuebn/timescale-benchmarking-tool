@@ -1,6 +1,7 @@
 package workers
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -79,6 +80,50 @@ func TestResultAggregatorWithOddNumberOfMeasurements(test *testing.T) {
 
 	assert.Equal(test, 3, result.NumberOfQueriesProcessed)
 	assert.Equal(test, 0, result.ErrorCount)
+	assert.Equal(test, time.Duration(500), result.MaximumQueryTime)
+	assert.Equal(test, time.Duration(100), result.MinimumQueryTime)
+	assert.Equal(test, time.Duration(266), result.MeanQueryTime)
+	assert.Equal(test, time.Duration(200), result.MedianQueryTime)
+}
+
+func TestResultAggregatorRecordsSingleError(test *testing.T) {
+	aggregator := NewResultAggregator()
+
+	measurements := []queries.QueryMeasurement{
+		{QueryTime: time.Duration(100), Error: errors.New("Ouchies!")},
+		{QueryTime: time.Duration(200)},
+		{QueryTime: time.Duration(500)},
+	}
+	for _, measurement := range measurements {
+		aggregator.AggregateCpuMeasure(measurement)
+	}
+
+	result := aggregator.CalculateAggregates()
+
+	assert.Equal(test, 3, result.NumberOfQueriesProcessed)
+	assert.Equal(test, 1, result.ErrorCount)
+	assert.Equal(test, time.Duration(500), result.MaximumQueryTime)
+	assert.Equal(test, time.Duration(100), result.MinimumQueryTime)
+	assert.Equal(test, time.Duration(266), result.MeanQueryTime)
+	assert.Equal(test, time.Duration(200), result.MedianQueryTime)
+}
+
+func TestResultAggregatorRecordsMultipleErrors(test *testing.T) {
+	aggregator := NewResultAggregator()
+
+	measurements := []queries.QueryMeasurement{
+		{QueryTime: time.Duration(100), Error: errors.New("Ouchies!")},
+		{QueryTime: time.Duration(200)},
+		{QueryTime: time.Duration(500), Error: errors.New("There's a snake in my boot!")},
+	}
+	for _, measurement := range measurements {
+		aggregator.AggregateCpuMeasure(measurement)
+	}
+
+	result := aggregator.CalculateAggregates()
+
+	assert.Equal(test, 3, result.NumberOfQueriesProcessed)
+	assert.Equal(test, 2, result.ErrorCount)
 	assert.Equal(test, time.Duration(500), result.MaximumQueryTime)
 	assert.Equal(test, time.Duration(100), result.MinimumQueryTime)
 	assert.Equal(test, time.Duration(266), result.MeanQueryTime)

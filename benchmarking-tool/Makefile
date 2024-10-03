@@ -6,3 +6,6 @@ build:
 
 test:
 	go test ./...
+
+run-against-local-database:
+	./run-against-local-database.sh

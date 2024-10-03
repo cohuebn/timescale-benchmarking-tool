@@ -43,12 +43,21 @@ func NewResultAggregator() ResultAggregator {
 	}
 }
 
+// Get the amount to increment the error count by based on the measurement
+func getErrorIncrement(measurement queries.QueryMeasurement) int {
+	if (measurement.Error != nil) {
+		return 1
+	}
+	return 0
+}
+
 func (aggregator *ResultAggregator) AggregateCpuMeasure(measurement queries.QueryMeasurement) {
 	// If this is the first measurement, set all values using just the measurement
 	// Otherwise, update the values based on the new measurement
 	if (aggregator.numberOfQueriesProcessed == 0) {
 		aggregator.numberOfQueriesProcessed = 1
 		aggregator.totalProcessingTime = measurement.QueryTime
+		aggregator.errorCount = getErrorIncrement(measurement)
 		aggregator.maximumQueryTime = measurement.QueryTime
 		aggregator.minimumQueryTime = measurement.QueryTime
 		aggregator.meanQueryTime = measurement.QueryTime
@@ -56,9 +65,7 @@ func (aggregator *ResultAggregator) AggregateCpuMeasure(measurement queries.Quer
 	} else {
 		aggregator.numberOfQueriesProcessed++
 		aggregator.totalProcessingTime += measurement.QueryTime
-		if (measurement.Error != nil) {
-			aggregator.errorCount++
-		}
+		aggregator.errorCount += getErrorIncrement(measurement)
 		if (measurement.QueryTime < aggregator.minimumQueryTime) {
 			aggregator.minimumQueryTime = measurement.QueryTime
 		}

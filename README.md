@@ -2,18 +2,48 @@
 
 A tool to benchmark Timescale query performance using multiple workers to run multiple queries concurrently.
 
-## Running locally via Docker
+## Dependencies
 
-To run the benchmarking tool locally within Docker/Docker Compose, take the following steps:
+To run this tool locally, you'll need the following:
+
+1. [Docker](https://docs.docker.com/compose/install/).
+
+If you want to run entirely in Docker, none of the subsequent dependencies are necessary. If you want to
+run the benchmarking tool Go application outside Docker, the following will either be needed or helpful:
+
+1. [Go](https://go.dev/doc/install) (Required) - Go is needed to compile, test, etc.
+2. [Make](https://www.gnu.org/software/make/) (Optional) - Make is not required, but the included Makefile can simplify
+   installing, building, etc.
+
+## Running locally
+
+This section details how to run the tool locally.
+
+### Docker
+
+The simplest way to test this tool is to run it within Docker/Docker Compose. To do so, take the following steps:
 
 1. Ensure you have [Docker/Docker Compose installed](https://docs.docker.com/compose/install/).
 2. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
 3. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/query-params.csv`.
 
+### Running the benchmarking tool outside of Docker
+
+You might want to run the tool outside of Docker (faster debugging, connecting to databases outside Docker, etc.). In case you want to run the benchmarking tool outside of Docker, take the following steps:
+
+1. You still need to run the database in Docker Compose. Run steps 1 and 2 in the [Running locally via Docker](#running-locally-via-docker) section above
+2. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
+3. Ensure you have all dependencies installed. Run: `go mod download`
+4. Run the benchmarking tool against the Docker database. A helper script has been created to automatically wire up to that database. Run: `./run-against-local-database.sh`.
+
+Note: Parameters can be passed to that [run-against-local-database.sh](./benchmarking-tool/run-against-local-database.sh)
+script to change the CSV file or number of workers. Example: `./run-against-local-database.sh --filename=../query-params/reordered-headers.csv --workers=16`
+
 ### Sample CSV files
 
-When running in Docker Compose, the benchmarking tool has access to the [query-params](./query-params/) directory. This directory contains sample CSV files containing query params for the benmarking tool to run.
-The directory is mounted at the path `/query-params` on the container.
+By default, this tool runs against [the sample CSV file](./query-params/query-params.csv) provided as part of the assignment. However, you can test against other files in that directory using the `--filename` parameter of the CLI.
+
+When running in Docker Compose, the benchmarking tool has access to the [query-params](./query-params/) directory mounted at the path `/query-params` on the container.
 
 This directory contains a the following files for testing the tool:
 

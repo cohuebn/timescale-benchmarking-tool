@@ -8,6 +8,8 @@ import (
 )
 
 // Used to store information about a single query run
+// While query parameters are not used in the resulting summary outputs, keeping them
+// to make debugging easier
 type QueryMeasurement struct {
 	// The parameters used to run the query
 	Params CpuUsageQueryParams
