@@ -42,7 +42,7 @@ services:
       - BENCHMARKING_TOOL_DATABASE_USERNAME=${BENCHMARKING_USER}
       - BENCHMARKING_TOOL_DATABASE_PASSWORD=${BENCHMARKING_PASSWORD}
     volumes:
-      - ./sample-csv-files:/sample-csv-files
+      - ./query-params:/query-params
     profiles:
       - run-manually
     networks:
