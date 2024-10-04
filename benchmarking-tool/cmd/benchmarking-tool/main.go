@@ -49,8 +49,12 @@ func main() {
 		log.Panic(connectivityCheck.Error)
 	}
 	
+	errorChannel := make(chan error)
 	// Read the CSV file and stream its contents
-	csvStream := csv.StreamCsvFile(cliArguments.Filename)
+	csvStream, err := csv.StreamCsvFile(cliArguments.Filename, errorChannel)
+	if (err != nil) {
+		log.Panic(err)
+	}
 	// Process all rows and aggregate results
 	results := benchmarking.ProcessCsv(cliArguments.Workers, connectionPool, csvStream)
 	slog.Info("Benchmarking tool finished. Results below")

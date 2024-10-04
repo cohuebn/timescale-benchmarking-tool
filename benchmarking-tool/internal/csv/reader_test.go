@@ -7,15 +7,23 @@ import (
 )
 
 func TestReaderWithValidCsv(t *testing.T) {
-	csvStream := StreamCsvFile("testdata/valid-csv.csv")
+	errorChannel := make(chan error)
+
+	csvStream, _ := StreamCsvFile("testdata/valid-csv.csv", errorChannel)
 
 	allStreamedResults := make([][]string, 0)
-	for csvRow := range csvStream {
-		if csvRow.Error != nil {
-			panic(csvRow.Error)
+	StreamingLoop:
+		for {
+			select {
+			case csvRow, ok := <-csvStream:
+				if !ok {
+					break StreamingLoop
+				}
+				allStreamedResults = append(allStreamedResults, csvRow.Row)
+			case err := <-errorChannel:
+				assert.Fail(t, "Error while streaming CSV file", err)
+			}
 		}
-		allStreamedResults = append(allStreamedResults, csvRow.Row)
-	}
 
 	assert.Equal(t, len(allStreamedResults), 4)
 	assert.Equal(t, allStreamedResults[0], []string{"hostname", "start_time", "end_time"})
@@ -25,25 +33,24 @@ func TestReaderWithValidCsv(t *testing.T) {
 }
 
 func TestReaderErrorWithMissingFile(t *testing.T) {
-	csvStream := StreamCsvFile("testdata/wah-wah-wee-wah-im-not-here.csv")
+	errorChannel := make(chan error)
 
-	result := <-csvStream
+	_, err := StreamCsvFile("testdata/wah-wah-wee-wah-im-not-here.csv", errorChannel)
 
-	assert.Nil(t, result.Row)
-	assert.NotNil(t, result.Error)
-	err := result.Error.Error()
-	assert.Contains(t, err, "CSV parsing error for file testdata/wah-wah-wee-wah-im-not-here.csv")
-	assert.Contains(t, err, "no such file or directory")
+	assert.Contains(t, err.Error(), "testdata/wah-wah-wee-wah-im-not-here.csv")
+	assert.Contains(t, err.Error(), "no such file or directory")
 }
 
 func TestReaderErrorWithNonCsv(t *testing.T) {
-	csvStream := StreamCsvFile("testdata/not-a-csv.json")
+	errorChannel := make(chan error)
 
-	result := <-csvStream
+	csvStream, _ := StreamCsvFile("testdata/not-a-csv.json", errorChannel)
 
-	assert.Nil(t, result.Row)
-	assert.NotNil(t, result.Error)
-	err := result.Error.Error()
-	assert.Contains(t, err, "CSV parsing error for file testdata/not-a-csv.json")
-	assert.Contains(t, err, "parse error on line 1, column 3")
+	select {
+	case <-csvStream:
+		assert.Fail(t, "Expected error while streaming CSV file")
+	case err := <-errorChannel:
+		assert.Contains(t, err.Error(), "CSV parsing error for file testdata/not-a-csv.json")
+		assert.Contains(t, err.Error(), "parse error on line 1, column 3")
+	}
 }

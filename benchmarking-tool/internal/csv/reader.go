@@ -15,30 +15,25 @@ type CsvParsingError struct {
 }
 
 func (err *CsvParsingError) Error() string {
-	return fmt.Sprintf("CSV parsing error for file %s: %s", err.Filename, err.Err)
+	return fmt.Sprintf("CSV parsing error for file %s. Caused by: %s", err.Filename, err.Err)
 }
 
 // A single result while streaming a CSV file
 type CsvStreamingResult struct {
 	Row []string
-	Error error
 }
 
 // Read a CSV file incrementally and stream its contents to the provided channel
-func StreamCsvFile(filename string) <-chan CsvStreamingResult {
+func StreamCsvFile(filename string, errorChannel chan<- error) (<-chan CsvStreamingResult, error) {
 	outputChannel := make(chan CsvStreamingResult, 10)
 
 	file, err := os.Open(filename)
-	// If the file can't be opened, stream the error and stop processing
+	// If the file can't be opened, stop processing
 	if err != nil {
-		outputChannel <- CsvStreamingResult{
-			Row: nil,
-			Error: &CsvParsingError{
-				Filename: filename,
-				Err:      err,
-			},
+		return nil, &CsvParsingError{
+			Filename: filename,
+			Err: 		err,
 		}
-		return outputChannel
 	}
 
 	go func() {
@@ -53,22 +48,18 @@ func StreamCsvFile(filename string) <-chan CsvStreamingResult {
 			}
 			// If there's an error while reading a line, stream the error and stop processing
 			if err != nil {
-				outputChannel <- CsvStreamingResult{
-					Row: nil,
-					Error: &CsvParsingError{
-						Filename: filename,
-						Err:      err,
-					},
+				errorChannel <- &CsvParsingError{
+					Filename: filename,
+					Err:      err,
 				}
 				break
 			}
 			// Stream the current row to the output channel
 			outputChannel <- CsvStreamingResult{
 				Row: record,
-				Error: nil,
 			}
 		}
 	}()
 
-	return outputChannel
+	return outputChannel, nil
 }

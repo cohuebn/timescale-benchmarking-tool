@@ -29,10 +29,6 @@ func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan databa
 		defer close(queryParamsStream)
 		var headerRow []string
 		for csvRow := range csvStream {
-			if csvRow.Error != nil {
-				log.Panic(csvRow.Error)
-			}
-			
 			if headerRow == nil {
 				validateHeaderRow(csvRow.Row)
 				headerRow = csvRow.Row
