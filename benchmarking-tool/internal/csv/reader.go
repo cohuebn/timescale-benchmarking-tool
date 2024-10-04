@@ -66,7 +66,7 @@ func StreamCsvFile(ctx context.Context, filename string, errGroup *errgroup.Grou
 						Err:      err,
 					}
 				}
-				// If everthing is fine, send the row to the output channel
+				// If everything is fine, send the row to the output channel
 				outputChannel <- CsvStreamingResult{
 					Row: record,
 				}
