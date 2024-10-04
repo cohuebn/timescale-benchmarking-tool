@@ -1,13 +1,11 @@
-package csv_processor
+package benchmarking
 
 import (
 	"log"
 	"slices"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/csv"
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/workers"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -25,8 +23,8 @@ func validateHeaderRow(row []string) {
 }
 
 // Convert a stream of CSV rows into a stream of query parameters
-func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan queries.CpuUsageQueryParams {
-	queryParamsStream := make(chan queries.CpuUsageQueryParams, 100)
+func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan database.CpuUsageQueryParams {
+	queryParamsStream := make(chan database.CpuUsageQueryParams, 100)
 	go func() {
 		defer close(queryParamsStream)
 		var headerRow []string
@@ -39,7 +37,7 @@ func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan querie
 				validateHeaderRow(csvRow.Row)
 				headerRow = csvRow.Row
 			} else {
-				queryParamsStream <- queries.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
+				queryParamsStream <- database.ParseCpuUsageCsvRow(headerRow, csvRow.Row)
 			}
 		}
 	}()
@@ -48,7 +46,7 @@ func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan querie
 }
 
 // Stream CSV rows through worker pools, run queries using those workers, and return aggregate results
-func ProcessCsv(numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult) results.AggregatedCpuUsageResults {
+func ProcessCsv(numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult) AggregatedCpuUsageResults {
 	queryParamsStream := getQueryParamsStream(csvStream)
-	return workers.MeasureCpuUsageQueries(numberOfWorkers, connectionPool, queryParamsStream)
+	return MeasureCpuUsageQueries(numberOfWorkers, connectionPool, queryParamsStream)
 }

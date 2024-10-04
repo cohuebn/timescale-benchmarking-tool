@@ -3,16 +3,18 @@ package database
 import (
 	"context"
 
+	"time"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type connectivityResult struct {
 	SuccessfulConnection bool
-	CpuUsageCount int
+	LatestCpuUsageTimestamp time.Time
 	Error error
 }
 
-// Run a query to prove that the connection to the database is working.
+// Run a query against the cpu_usage_count table to prove that the connection to the database is working.
 func RunConnectivityCheck(connectionPool *pgxpool.Pool) connectivityResult {
 	connection, err := connectionPool.Acquire(context.Background())
 	if (err != nil) {
@@ -22,10 +24,10 @@ func RunConnectivityCheck(connectionPool *pgxpool.Pool) connectivityResult {
 		}
 	}
 	defer connection.Release()
-	var cpuUsageCount int
+	var latestTimestamp time.Time
 	err = connection.
-		QueryRow(context.Background(), "select count(1) as cpu_usage_count from public.cpu_usage").
-		Scan(&cpuUsageCount)
+		QueryRow(context.Background(), "select * from public.cpu_usage order by ts desc limit 1;").
+		Scan(&latestTimestamp)
 	
 	if (err != nil) {
 		return connectivityResult{
@@ -36,6 +38,6 @@ func RunConnectivityCheck(connectionPool *pgxpool.Pool) connectivityResult {
 
 	return connectivityResult{
 		SuccessfulConnection: true,
-		CpuUsageCount: cpuUsageCount,
+		LatestCpuUsageTimestamp: latestTimestamp,
 	}
 }

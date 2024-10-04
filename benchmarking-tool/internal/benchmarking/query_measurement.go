@@ -1,9 +1,10 @@
-package queries
+package benchmarking
 
 import (
 	"context"
 	"time"
 
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -12,15 +13,15 @@ import (
 // to make debugging easier
 type QueryMeasurement struct {
 	// The parameters used to run the query
-	Params CpuUsageQueryParams
+	Params database.CpuUsageQueryParams
 	// Used to understand how long the query took
 	QueryTime time.Duration
 	// If the query failed, this will contain the error
 	Error error
 }
 
-func MeasureCpuUsageQuery(connectionPool *pgxpool.Pool, queryParams CpuUsageQueryParams) QueryMeasurement {
-	query := ConvertCpuUsageParamsToQuery(queryParams)
+func MeasureCpuUsageQuery(connectionPool *pgxpool.Pool, queryParams database.CpuUsageQueryParams) QueryMeasurement {
+	query := database.ConvertCpuUsageParamsToQuery(queryParams)
 	connection, connectionError := connectionPool.Acquire(context.Background())
 	if connectionError != nil {
 		return QueryMeasurement{Error: connectionError, QueryTime: 0}

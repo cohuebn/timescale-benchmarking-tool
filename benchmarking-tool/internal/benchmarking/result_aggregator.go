@@ -1,11 +1,8 @@
-package workers
+package benchmarking
 
 import (
 	"sort"
 	"time"
-
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
 )
 
 // A structure that can be used to aggregate the results of multiple CPU usage queries
@@ -34,14 +31,14 @@ func NewResultAggregator() ResultAggregator {
 }
 
 // Get the amount to increment the error count by based on the measurement
-func getErrorIncrement(measurement queries.QueryMeasurement) int {
+func getErrorIncrement(measurement QueryMeasurement) int {
 	if (measurement.Error != nil) {
 		return 1
 	}
 	return 0
 }
 
-func (aggregator *ResultAggregator) AggregateCpuMeasure(measurement queries.QueryMeasurement) {
+func (aggregator *ResultAggregator) AggregateCpuMeasure(measurement QueryMeasurement) {
 	// If this is the first measurement, set all values using just the measurement
 	// Otherwise, update the values based on the new measurement
 	if (aggregator.numberOfQueriesProcessed == 0) {
@@ -92,10 +89,10 @@ func getMedian(queryTimes []time.Duration) time.Duration {
 	return (sortedQueryTimes[middleDurationIndex - 1] + sortedQueryTimes[middleDurationIndex]) / 2.0
 }
 
-func (aggregator *ResultAggregator) CalculateAggregates() results.AggregatedCpuUsageResults {
+func (aggregator *ResultAggregator) CalculateAggregates() AggregatedCpuUsageResults {
 	// Calculate the median query time; all other values can be calculated in a streaming fashion
 	medianQueryTime := getMedian(aggregator.queryTimes)
-	return results.AggregatedCpuUsageResults{
+	return AggregatedCpuUsageResults{
 		NumberOfQueriesProcessed: aggregator.numberOfQueriesProcessed,
 		ErrorCount: aggregator.errorCount,
 		TotalProcessingTime: aggregator.totalProcessingTime,

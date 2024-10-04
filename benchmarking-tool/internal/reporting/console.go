@@ -3,11 +3,11 @@ package reporting
 import (
 	"os"
 
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/results"
+	"github.com/cohuebn/timescale-benchmarking-tool/internal/benchmarking"
 	"github.com/jedib0t/go-pretty/v6/table"
 )
 
-func LogAggregatedCpuUsageResultsToConsole(aggregatedResults results.AggregatedCpuUsageResults) {
+func LogCpuUsageResultsToConsole(aggregatedResults benchmarking.AggregatedCpuUsageResults) {
 	tableWriter := table.NewWriter()
 	tableWriter.SetOutputMirror(os.Stdout)
 	tableWriter.AppendHeader(table.Row{"Metric", "Value"})

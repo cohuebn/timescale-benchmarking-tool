@@ -1,11 +1,10 @@
-package workers
+package benchmarking
 
 import (
 	"errors"
 	"testing"
 	"time"
 
-	"github.com/cohuebn/timescale-benchmarking-tool/internal/queries"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +26,7 @@ func TestResultAggregatorWithSingleSuccessMeasurement(test *testing.T) {
 	aggregator := NewResultAggregator()
 
 	queryTime := time.Duration(100)
-	aggregator.AggregateCpuMeasure(queries.QueryMeasurement{
+	aggregator.AggregateCpuMeasure(QueryMeasurement{
 		QueryTime: queryTime,
 	})
 
@@ -44,7 +43,7 @@ func TestResultAggregatorWithSingleSuccessMeasurement(test *testing.T) {
 func TestResultAggregatorWithEvenNumberOfMeasurements(test *testing.T) {
 	aggregator := NewResultAggregator()
 
-	measurements := []queries.QueryMeasurement{
+	measurements := []QueryMeasurement{
 		{QueryTime: time.Duration(100)},
 		{QueryTime: time.Duration(200)},
 		{QueryTime: time.Duration(300)},
@@ -67,7 +66,7 @@ func TestResultAggregatorWithEvenNumberOfMeasurements(test *testing.T) {
 func TestResultAggregatorWithOddNumberOfMeasurements(test *testing.T) {
 	aggregator := NewResultAggregator()
 
-	measurements := []queries.QueryMeasurement{
+	measurements := []QueryMeasurement{
 		{QueryTime: time.Duration(100)},
 		{QueryTime: time.Duration(200)},
 		{QueryTime: time.Duration(500)},
@@ -89,7 +88,7 @@ func TestResultAggregatorWithOddNumberOfMeasurements(test *testing.T) {
 func TestResultAggregatorRecordsSingleError(test *testing.T) {
 	aggregator := NewResultAggregator()
 
-	measurements := []queries.QueryMeasurement{
+	measurements := []QueryMeasurement{
 		{QueryTime: time.Duration(100), Error: errors.New("Ouchies!")},
 		{QueryTime: time.Duration(200)},
 		{QueryTime: time.Duration(500)},
@@ -111,7 +110,7 @@ func TestResultAggregatorRecordsSingleError(test *testing.T) {
 func TestResultAggregatorRecordsMultipleErrors(test *testing.T) {
 	aggregator := NewResultAggregator()
 
-	measurements := []queries.QueryMeasurement{
+	measurements := []QueryMeasurement{
 		{QueryTime: time.Duration(100), Error: errors.New("Ouchies!")},
 		{QueryTime: time.Duration(200)},
 		{QueryTime: time.Duration(500), Error: errors.New("There's a snake in my boot!")},

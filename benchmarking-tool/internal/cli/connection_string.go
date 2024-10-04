@@ -6,7 +6,7 @@ import (
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
 )
 
-// Create a connection string using the provided CLI arguments
+// Create a connection string from the provided CLI arguments
 func CreateConnectionString(cliArguments CliArguments) string {
 	// Intentionally don't log out the password
 	slog.Debug(

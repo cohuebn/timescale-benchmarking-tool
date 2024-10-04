@@ -1,4 +1,4 @@
-package queries
+package database
 
 import (
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/collections"
