@@ -32,9 +32,8 @@ func makeWorkerChannels(numberOfWorkers int) []chan database.CpuUsageQueryParams
 	return requestChannels
 }
 
-// Measure CPU usage queries using a pool of workers to run those queries
-// Return all recorded query measurements
-func MeasureCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams) AggregatedCpuUsageResults {
+// Run CPU usage queries using a pool of workers. Return all recorded query measurements.
+func RunCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams) AggregatedCpuUsageResults {
 	// Setup channels for workers to receive requests and send responses
 	// Each worker gets its own channel to receive requests on
 	requestChannels := makeWorkerChannels(numberOfWorkers)

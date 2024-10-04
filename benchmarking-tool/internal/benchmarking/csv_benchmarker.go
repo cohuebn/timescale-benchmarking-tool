@@ -48,5 +48,5 @@ func getQueryParamsStream(csvStream <-chan csv.CsvStreamingResult) <-chan databa
 // Stream CSV rows through worker pools, run queries using those workers, and return aggregate results
 func ProcessCsv(numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult) AggregatedCpuUsageResults {
 	queryParamsStream := getQueryParamsStream(csvStream)
-	return MeasureCpuUsageQueries(numberOfWorkers, connectionPool, queryParamsStream)
+	return RunCpuUsageQueries(numberOfWorkers, connectionPool, queryParamsStream)
 }

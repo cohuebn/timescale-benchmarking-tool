@@ -26,7 +26,7 @@ func RunConnectivityCheck(connectionPool *pgxpool.Pool) connectivityResult {
 	defer connection.Release()
 	var latestTimestamp time.Time
 	err = connection.
-		QueryRow(context.Background(), "select * from public.cpu_usage order by ts desc limit 1;").
+		QueryRow(context.Background(), "select ts from public.cpu_usage order by ts desc limit 1;").
 		Scan(&latestTimestamp)
 	
 	if (err != nil) {

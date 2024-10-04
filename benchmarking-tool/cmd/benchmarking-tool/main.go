@@ -19,7 +19,7 @@ func setupConnectionPool(cliArguments cli.CliArguments) *pgxpool.Pool {
 	connectionString := cli.CreateConnectionString(cliArguments)
 	connectionPool, err := database.CreateConnectionPool(connectionString)
 	if (err != nil) {
-		// If we can't connect to the database, there's no point in continuing
+		// If we can't create a connection pool to the database, don't continue
 		log.Panic(err)
 	}
 	return connectionPool
@@ -43,7 +43,7 @@ func main() {
 	connectionPool := setupConnectionPool(cliArguments)
 	defer connectionPool.Close()
 
-	// Ensure database connectivity before benchmarking; if we can't connect, there's no point in continuing
+	// Ensure database connectivity before benchmarking; if we can't connect, don't continue
 	connectivityCheck := database.RunConnectivityCheck(connectionPool)
 	if (connectivityCheck.Error != nil) {
 		log.Panic(connectivityCheck.Error)
