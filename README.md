@@ -47,6 +47,8 @@ This directory contains a the following files for testing the tool:
 
 - [query_params.csv](./query-params/query-params.csv): This is the file provided as part of the assignment by Timescale
 - [reordered-headers.csv](./query-params/reordered-headers.csv): This contains the same data as [query_params.csv](./query-params/query-params.csv), but the `hostname` header has been moved to the end of the file to test handling any order of the three required columns
+- [not-a-csv.json](./query-params/not-a-csv.json): This is a JSON file that can be used to see the error
+  returned when a non-CSV file is provided to the benchmarking tool
 
 ## Running tests
 

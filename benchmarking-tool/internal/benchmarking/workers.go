@@ -1,10 +1,12 @@
 package benchmarking
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"golang.org/x/sync/errgroup"
 )
 
 // TODO: In a production application, I'd add integration tests to test the interaction
@@ -12,15 +14,23 @@ import (
 // of simplicity, I'm leaving that out of scope for this assignment.
 
 // Create a "CPU usage worker" that will run CPU usage queries and measure important metrics on each query
-func createCpuUsageWorker(workerId int, connectionPool *pgxpool.Pool, requests <-chan database.CpuUsageQueryParams, responses chan<- QueryMeasurement) {
+func createCpuUsageWorker(ctx context.Context, workerId int, connectionPool *pgxpool.Pool, requests <-chan database.CpuUsageQueryParams, responses chan<- QueryMeasurement) error {
 	slog.Debug("Worker started", "workerId", workerId)
 
-	for request := range requests {
-		measurement := MeasureCpuUsageQuery(connectionPool, request)
-		responses <- measurement
+	for {
+		select {
+		case <-ctx.Done():
+			slog.Debug("Stopping worker due to an external error", "workerId", workerId)
+			return ctx.Err()
+		case request, ok := <-requests:
+			if (!ok) {
+				slog.Debug("Worker finished processing all requests", "workerId", workerId)
+				return nil
+			}
+			measurement := MeasureCpuUsageQuery(connectionPool, request)
+			responses <- measurement
+		}
 	}
-
-	slog.Debug("Worker finished", "workerId", workerId)
 }
 
 // Make a buffered channel for each worker to receive requests on
@@ -33,7 +43,7 @@ func makeWorkerChannels(numberOfWorkers int) []chan database.CpuUsageQueryParams
 }
 
 // Run CPU usage queries using a pool of workers. Return all recorded query measurements.
-func RunCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams) AggregatedCpuUsageResults {
+func RunCpuUsageQueries(ctx context.Context, numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams, errGroup *errgroup.Group) AggregatedCpuUsageResults {
 	// Setup channels for workers to receive requests and send responses
 	// Each worker gets its own channel to receive requests on
 	requestChannels := makeWorkerChannels(numberOfWorkers)
@@ -45,7 +55,9 @@ func RunCpuUsageQueries(numberOfWorkers int, connectionPool *pgxpool.Pool, incom
 
 	// Setup worker pools
 	for workerId := 0; workerId < numberOfWorkers; workerId++ {
-		go createCpuUsageWorker(workerId, connectionPool, requestChannels[workerId], responses)
+		errGroup.Go(func () error {
+			return createCpuUsageWorker(ctx, workerId, connectionPool, requestChannels[workerId], responses)
+		})
 	}
 
 	// Assign incoming query parameters to workers and send them for processing

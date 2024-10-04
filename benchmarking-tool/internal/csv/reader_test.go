@@ -1,30 +1,26 @@
 package csv
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/sync/errgroup"
 )
 
 func TestReaderWithValidCsv(t *testing.T) {
-	errorChannel := make(chan error)
+	errGroup, ctx := errgroup.WithContext(context.Background())
 
-	csvStream, _ := StreamCsvFile("testdata/valid-csv.csv", errorChannel)
+	csvStream, _ := StreamCsvFile(ctx, "testdata/valid-csv.csv", errGroup)
 
 	allStreamedResults := make([][]string, 0)
-	StreamingLoop:
-		for {
-			select {
-			case csvRow, ok := <-csvStream:
-				if !ok {
-					break StreamingLoop
-				}
-				allStreamedResults = append(allStreamedResults, csvRow.Row)
-			case err := <-errorChannel:
-				assert.Fail(t, "Error while streaming CSV file", err)
-			}
-		}
+	for csvRow := range csvStream {
+		allStreamedResults = append(allStreamedResults, csvRow.Row)
+	}
 
+	err := errGroup.Wait()
+	
+	assert.Nil(t, err)
 	assert.Equal(t, len(allStreamedResults), 4)
 	assert.Equal(t, allStreamedResults[0], []string{"hostname", "start_time", "end_time"})
 	assert.Equal(t, allStreamedResults[1], []string{"host_000008", "2017-01-01 08:59:22", "2017-01-01 09:59:22"})
@@ -32,25 +28,22 @@ func TestReaderWithValidCsv(t *testing.T) {
 	assert.Equal(t, allStreamedResults[3], []string{"host_000008", "2017-01-02 18:50:28", "2017-01-02 19:50:28"})
 }
 
-func TestReaderErrorWithMissingFile(t *testing.T) {
-	errorChannel := make(chan error)
+func TestReaderErrorWithMissingFileImmediatelyReturnsError(t *testing.T) {
+	errGroup, ctx := errgroup.WithContext(context.Background())
 
-	_, err := StreamCsvFile("testdata/wah-wah-wee-wah-im-not-here.csv", errorChannel)
+	_, err := StreamCsvFile(ctx, "testdata/wah-wah-wee-wah-im-not-here.csv", errGroup)
 
 	assert.Contains(t, err.Error(), "testdata/wah-wah-wee-wah-im-not-here.csv")
 	assert.Contains(t, err.Error(), "no such file or directory")
 }
 
-func TestReaderErrorWithNonCsv(t *testing.T) {
-	errorChannel := make(chan error)
+func TestReaderErrorWithNonCsvReturnsErrorAsItsFound(t *testing.T) {
+	errGroup, ctx := errgroup.WithContext(context.Background())
 
-	csvStream, _ := StreamCsvFile("testdata/not-a-csv.json", errorChannel)
+	StreamCsvFile(ctx, "testdata/not-a-csv.json", errGroup)
 
-	select {
-	case <-csvStream:
-		assert.Fail(t, "Expected error while streaming CSV file")
-	case err := <-errorChannel:
-		assert.Contains(t, err.Error(), "CSV parsing error for file testdata/not-a-csv.json")
-		assert.Contains(t, err.Error(), "parse error on line 1, column 3")
-	}
+	err := errGroup.Wait()
+	assert.NotNil(t, err)
+	assert.Contains(t, err.Error(), "CSV parsing error for file testdata/not-a-csv.json")
+	assert.Contains(t, err.Error(), "parse error on line 1, column 3")
 }

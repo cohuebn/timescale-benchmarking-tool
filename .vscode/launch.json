@@ -5,12 +5,38 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Test with assigment file",
+      "name": "Debug with assigment file",
       "type": "go",
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/benchmarking-tool/cmd/benchmarking-tool/main.go",
-      "args": ["--filename=${workspaceFolder}/query-params/query-params.csv"]
+      "args": [
+        "--filename=${workspaceFolder}/query-params/query-params.csv",
+        "--database-host=0.0.0.0",
+        "--database-port=5432",
+        "--database-name=homework",
+        "--database-username=benchymarkerson",
+        "--database-password=markitaneightdude",
+        "--log-level=debug",
+        "--workers=5"
+      ]
+    },
+    {
+      "name": "Debug with missing headers file",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/benchmarking-tool/cmd/benchmarking-tool/main.go",
+      "args": [
+        "--filename=${workspaceFolder}/query-params/missing-required-headers.csv",
+        "--database-host=0.0.0.0",
+        "--database-port=5432",
+        "--database-name=homework",
+        "--database-username=benchymarkerson",
+        "--database-password=markitaneightdude",
+        "--log-level=debug",
+        "--workers=2"
+      ]
     }
   ]
 }
