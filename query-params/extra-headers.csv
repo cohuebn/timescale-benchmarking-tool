@@ -1,0 +1,5 @@
+hostname,ghost_name,start_time,end_time,notes
+host_000008,casper,2017-01-01 08:59:22,2017-01-01 09:59:22,
+host_000001,king boo,2017-01-02 13:02:02,2017-01-02 14:02:02,yep
+host_000008,slimer,2017-01-02 18:50:28,2017-01-02 19:50:28,nope
+host_000002,king boo,2017-01-02 15:16:29,2017-01-02 16:16:29,indifferent
