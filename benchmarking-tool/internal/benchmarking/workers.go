@@ -96,9 +96,11 @@ func RunCpuUsageQueries(ctx context.Context, numberOfWorkers int, connectionPool
 	responses := runWorkerPool(ctx, numberOfWorkers, connectionPool, incomingQueryParameters, errGroup)
 
 	// Aggregate all responses
+	resultProgress := GetProgressBar()
 	resultAggregator := NewResultAggregator()
 	for response := range responses {
 		resultAggregator.AggregateCpuMeasure(response)
+		resultProgress.Add(1)
 	}
 
 	return resultAggregator.CalculateAggregates()
