@@ -37,6 +37,23 @@
         "--log-level=debug",
         "--workers=2"
       ]
+    },
+    {
+      "name": "Debug with large file",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/benchmarking-tool/cmd/benchmarking-tool/main.go",
+      "args": [
+        "--filename=${workspaceFolder}/query-params/large-file.csv",
+        "--database-host=0.0.0.0",
+        "--database-port=5432",
+        "--database-name=homework",
+        "--database-username=benchymarkerson",
+        "--database-password=markitaneightdude",
+        "--log-level=debug",
+        "--workers=16"
+      ]
     }
   ]
 }

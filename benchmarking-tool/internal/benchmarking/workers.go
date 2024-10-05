@@ -3,6 +3,7 @@ package benchmarking
 import (
 	"context"
 	"log/slog"
+	"sync"
 
 	"github.com/cohuebn/timescale-benchmarking-tool/internal/database"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,7 +15,7 @@ import (
 // of simplicity, I'm leaving that out of scope for this assignment.
 
 // Create a "CPU usage worker" that will run CPU usage queries and measure important metrics on each query
-func createCpuUsageWorker(ctx context.Context, workerId int, connectionPool *pgxpool.Pool, requests <-chan database.CpuUsageQueryParams, responses chan<- QueryMeasurement) error {
+func runCpuUsageWorker(ctx context.Context, workerId int, connectionPool *pgxpool.Pool, requests <-chan database.CpuUsageQueryParams, responses chan<- QueryMeasurement) error {
 	slog.Debug("Worker started", "workerId", workerId)
 
 	for {
@@ -42,39 +43,61 @@ func makeWorkerChannels(numberOfWorkers int) []chan database.CpuUsageQueryParams
 	return requestChannels
 }
 
-// Run CPU usage queries using a pool of workers. Return all recorded query measurements.
-func RunCpuUsageQueries(ctx context.Context, numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams, errGroup *errgroup.Group) AggregatedCpuUsageResults {
+// Assign incoming query parameters to workers and send the request to that worker for processing
+func assignIncomingRequests(incomingQueryParameters <-chan database.CpuUsageQueryParams, requestChannels []chan database.CpuUsageQueryParams) {
+	workerAssigner := NewWorkerAssigner(len(requestChannels))
+	for queryParameters := range incomingQueryParameters {
+		assignedWorker := workerAssigner.AssignHostToWorker(queryParameters.Hostname)
+		requestChannels[assignedWorker] <- queryParameters
+	}
+}
+
+// Run a pool of workers to process incoming CPU usage queries
+func runWorkerPool(
+	ctx context.Context,
+	numberOfWorkers int,
+	connectionPool *pgxpool.Pool,
+	incomingQueryParameters <-chan database.CpuUsageQueryParams,
+	errGroup *errgroup.Group) <-chan QueryMeasurement {
 	// Setup channels for workers to receive requests and send responses
 	// Each worker gets its own channel to receive requests on
 	requestChannels := makeWorkerChannels(numberOfWorkers)
 	responses := make(chan QueryMeasurement, 100)
-	for _, requestChannel := range requestChannels {
-		defer close(requestChannel)
-	}
-	defer close(responses)
 
-	// Setup worker pools
+	// Setup workers
+	var workerWaitGroup sync.WaitGroup
 	for workerId := 0; workerId < numberOfWorkers; workerId++ {
+		workerWaitGroup.Add(1)
 		errGroup.Go(func () error {
-			return createCpuUsageWorker(ctx, workerId, connectionPool, requestChannels[workerId], responses)
+			defer workerWaitGroup.Done()
+			return runCpuUsageWorker(ctx, workerId, connectionPool, requestChannels[workerId], responses)
 		})
 	}
 
-	// Assign incoming query parameters to workers and send them for processing
-	workerAssigner := WorkerAssigner{
-		numberOfWorkers: numberOfWorkers,
-		assignedWorkers: make(map[string]int),
-	}
-	expectedResponseCount := 0
-	for queryParameters := range incomingQueryParameters {
-		assignedWorker := workerAssigner.AssignHostToWorker(queryParameters.Hostname)
-		expectedResponseCount++
-		requestChannels[assignedWorker] <- queryParameters
-	}
-	// Wait for and aggregate all responses
+	// Send requests to workers for processing
+	go func() {
+		assignIncomingRequests(incomingQueryParameters, requestChannels)
+		for _, requestChannel := range requestChannels {
+			close(requestChannel)
+		}
+	}()
+
+	// When all workers are done, close the responses channel
+	go func() {
+		workerWaitGroup.Wait()
+		close(responses)
+	}()
+
+	return responses
+}
+
+// Run CPU usage queries using a pool of workers. Return all recorded query measurements.
+func RunCpuUsageQueries(ctx context.Context, numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams, errGroup *errgroup.Group) AggregatedCpuUsageResults {
+	responses := runWorkerPool(ctx, numberOfWorkers, connectionPool, incomingQueryParameters, errGroup)
+
+	// Aggregate all responses
 	resultAggregator := NewResultAggregator()
-	for responseToAwait := 1; responseToAwait <= expectedResponseCount; responseToAwait++ {
-		response := <-responses
+	for response := range responses {
 		resultAggregator.AggregateCpuMeasure(response)
 	}
 

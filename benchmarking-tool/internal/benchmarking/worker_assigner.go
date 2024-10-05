@@ -22,6 +22,13 @@ type WorkerAssigner struct {
 	assignedWorkers map[string]int
 }
 
+func NewWorkerAssigner(numberOfWorkers int) WorkerAssigner {
+	return WorkerAssigner{
+		numberOfWorkers: numberOfWorkers,
+		assignedWorkers: make(map[string]int),
+	}
+}
+
 // Assign a the given host to a worker. This function will
 // reuse the same worker for the same host if called multiple times
 // for that host.
