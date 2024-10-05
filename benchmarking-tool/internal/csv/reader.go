@@ -29,6 +29,7 @@ type CsvStreamingResult struct {
 
 // Read a CSV file incrementally and stream its contents to the provided channel
 func StreamCsvFile(ctx context.Context, filename string, errGroup *errgroup.Group) (<-chan CsvStreamingResult, error) {
+	// TODO: Tune the various channel buffers throughout the application
 	outputChannel := make(chan CsvStreamingResult, 100)
 
 	file, err := os.Open(filename)

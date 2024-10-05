@@ -19,7 +19,7 @@ option_count as (
 option_selection as (
 	select floor(random() * oc.value + 1)::int as data_option
 	from option_count oc
-	cross join pg_catalog.generate_series(1, 1000000)
+	cross join pg_catalog.generate_series(1, 10000)
 ),
 -- Get a random, but valid option using each chosen host row
 random_data as (

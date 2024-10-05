@@ -37,6 +37,8 @@ You might want to run the tool outside of Docker (faster debugging, connecting t
 Note: Parameters can be passed to that [run-against-local-database.sh](./benchmarking-tool/run-against-local-database.sh)
 script to change the CSV file or number of workers. Example: `./run-against-local-database.sh --filename=../query-params/reordered-headers.csv --workers=16`
 
+To see all options for the CLI, run `./run-against-local-database.sh --help` or `go run cmd/benchmarking-tool/main.go --help`.
+
 ### Sample CSV files
 
 By default, this tool runs against [the sample CSV file](./query-params/query-params.csv) provided as part of the assignment. However, you can test against other files in that directory using the `--filename` parameter of the CLI.
@@ -49,6 +51,7 @@ This directory contains a the following files for testing the tool:
 - [reordered-headers.csv](./query-params/reordered-headers.csv): This contains the same data as [query_params.csv](./query-params/query-params.csv), but the `hostname` header has been moved to the end of the file to test handling any order of the three required columns
 - [not-a-csv.json](./query-params/not-a-csv.json): This is a JSON file that can be used to see the error
   returned when a non-CSV file is provided to the benchmarking tool
+- [generate-large-file.sql](./query-params/generate-large-file.sql): This is a SQL query that can be run against the database to get a large dataset for testing
 
 ## Running tests
 
