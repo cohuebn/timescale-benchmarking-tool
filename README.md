@@ -60,3 +60,7 @@ If you'd like to run unit tests, take the following steps:
 1. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
 2. Ensure you've downloaded all dependencies locally: `go mod download`
 3. Run all tests: `go test ./...`
+
+## Requirements
+
+Requirements for this tool are documented here, along with some rationale around decisions made: [requirements.md](./requirements.md)
