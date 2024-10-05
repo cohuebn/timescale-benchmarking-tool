@@ -53,7 +53,7 @@ func assignIncomingRequests(incomingQueryParameters <-chan database.CpuUsageQuer
 }
 
 // Run a pool of workers to process incoming CPU usage queries
-func runWorkerPool(
+func RunAndMeasureQueries(
 	ctx context.Context,
 	numberOfWorkers int,
 	connectionPool *pgxpool.Pool,
@@ -89,19 +89,4 @@ func runWorkerPool(
 	}()
 
 	return responses
-}
-
-// Run CPU usage queries using a pool of workers. Return all recorded query measurements.
-func RunCpuUsageQueries(ctx context.Context, numberOfWorkers int, connectionPool *pgxpool.Pool, incomingQueryParameters <-chan database.CpuUsageQueryParams, errGroup *errgroup.Group) AggregatedCpuUsageResults {
-	responses := runWorkerPool(ctx, numberOfWorkers, connectionPool, incomingQueryParameters, errGroup)
-
-	// Aggregate all responses
-	resultProgress := GetProgressBar()
-	resultAggregator := NewResultAggregator()
-	for response := range responses {
-		resultAggregator.AggregateCpuMeasure(response)
-		resultProgress.Add(1)
-	}
-
-	return resultAggregator.CalculateAggregates()
 }

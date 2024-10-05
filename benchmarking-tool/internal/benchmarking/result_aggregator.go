@@ -38,7 +38,7 @@ func getErrorIncrement(measurement QueryMeasurement) int {
 	return 0
 }
 
-func (aggregator *ResultAggregator) AggregateCpuMeasure(measurement QueryMeasurement) {
+func (aggregator *ResultAggregator) AggregateCpuQueryMeasure(measurement QueryMeasurement) {
 	// If this is the first measurement, set all values using just the measurement
 	// Otherwise, update the values based on the new measurement
 	if (aggregator.numberOfQueriesProcessed == 0) {

@@ -26,7 +26,7 @@ func TestResultAggregatorWithSingleSuccessMeasurement(test *testing.T) {
 	aggregator := NewResultAggregator()
 
 	queryTime := time.Duration(100)
-	aggregator.AggregateCpuMeasure(QueryMeasurement{
+	aggregator.AggregateCpuQueryMeasure(QueryMeasurement{
 		QueryTime: queryTime,
 	})
 
@@ -50,7 +50,7 @@ func TestResultAggregatorWithEvenNumberOfMeasurements(test *testing.T) {
 		{QueryTime: time.Duration(500)},
 	}
 	for _, measurement := range measurements {
-		aggregator.AggregateCpuMeasure(measurement)
+		aggregator.AggregateCpuQueryMeasure(measurement)
 	}
 
 	result := aggregator.CalculateAggregates()
@@ -72,7 +72,7 @@ func TestResultAggregatorWithOddNumberOfMeasurements(test *testing.T) {
 		{QueryTime: time.Duration(500)},
 	}
 	for _, measurement := range measurements {
-		aggregator.AggregateCpuMeasure(measurement)
+		aggregator.AggregateCpuQueryMeasure(measurement)
 	}
 
 	result := aggregator.CalculateAggregates()
@@ -94,7 +94,7 @@ func TestResultAggregatorRecordsSingleError(test *testing.T) {
 		{QueryTime: time.Duration(500)},
 	}
 	for _, measurement := range measurements {
-		aggregator.AggregateCpuMeasure(measurement)
+		aggregator.AggregateCpuQueryMeasure(measurement)
 	}
 
 	result := aggregator.CalculateAggregates()
@@ -116,7 +116,7 @@ func TestResultAggregatorRecordsMultipleErrors(test *testing.T) {
 		{QueryTime: time.Duration(500), Error: errors.New("There's a snake in my boot!")},
 	}
 	for _, measurement := range measurements {
-		aggregator.AggregateCpuMeasure(measurement)
+		aggregator.AggregateCpuQueryMeasure(measurement)
 	}
 
 	result := aggregator.CalculateAggregates()

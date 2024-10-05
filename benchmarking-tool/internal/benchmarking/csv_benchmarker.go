@@ -80,5 +80,15 @@ func getQueryParamsStream(ctx context.Context, csvStream <-chan csv.CsvStreaming
 // Stream CSV rows through worker pools, run queries using those workers, and return aggregate results
 func ProcessCsv(ctx context.Context, numberOfWorkers int, connectionPool *pgxpool.Pool, csvStream <-chan csv.CsvStreamingResult, errGroup *errgroup.Group) AggregatedCpuUsageResults {
 	queryParamsStream := getQueryParamsStream(ctx, csvStream, errGroup)
-	return RunCpuUsageQueries(ctx, numberOfWorkers, connectionPool, queryParamsStream, errGroup)
+	queryMeasurements := RunAndMeasureQueries(ctx, numberOfWorkers, connectionPool, queryParamsStream, errGroup)
+
+	// Aggregate all responses
+	resultProgress := GetProgressBar()
+	resultAggregator := NewResultAggregator()
+	for queryMeasurement := range queryMeasurements {
+		resultAggregator.AggregateCpuQueryMeasure(queryMeasurement)
+		resultProgress.Add(1)
+	}
+
+	return resultAggregator.CalculateAggregates()
 }

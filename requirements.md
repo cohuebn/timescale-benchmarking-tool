@@ -51,4 +51,4 @@ Some TODO comments remain for things that would be nice-to-have given more time 
    rather than being indeterminate
 2. Come up with a more efficient approximation of median; To get exact median, I needed to store all query times until the end of processing and then get the median. However, there are ways to approximate the median without storing all values. E.g. storing a histogram and using it to approximate the median. However, for the sake of correctness and simplicity, I opted to calculate absolute median.
 3. In a production application, I'd add integration tests to have automated validation that the Timescale interaction is working correctly.
-4. If I had more time, I'd work on tuning the tool more for performance (e.g. channel buffer sizes). I was seeing about 95-105 queries per second in the tool's current state.
+4. If I had more time, I'd work on tuning the tool more for performance (e.g. channel buffer sizes). I was seeing between 95-155 queries per second in the tool's current state.
