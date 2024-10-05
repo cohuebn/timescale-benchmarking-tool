@@ -5,7 +5,8 @@ import (
 )
 
 // Assign a worker to run a CPU usage query for a given hostname
-// This function
+// This function uses a hash function to determinsitically assign the same
+// worker to the same hostname
 func assignHostToWorker(hostname string, numberOfWorkers int) int {
 	// Use a relatively inexpensive hash function to convert a hostname
 	// into a somewhat-randomized integer value
