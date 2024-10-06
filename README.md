@@ -2,6 +2,10 @@
 
 A tool to benchmark Timescale query performance using multiple workers to run multiple queries concurrently.
 
+Requirements for this tool are documented here, along with some rationale around decisions made: [requirements.md](./requirements.md)
+
+Some useful diagrams detailing system architecture can be found here: [architecture.md](./architecture.md)
+
 ## Dependencies
 
 To run this tool locally, you'll need the following:
@@ -60,11 +64,3 @@ If you'd like to run unit tests, take the following steps:
 1. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
 2. Ensure you've downloaded all dependencies locally: `go mod download`
 3. Run all tests: `go test ./...`
-
-## Requirements
-
-Requirements for this tool are documented here, along with some rationale around decisions made: [requirements.md](./requirements.md)
-
-## Architecture
-
-Some useful diagrams detailing system architecture can be found here: [architecture.md](./architecture.md)
