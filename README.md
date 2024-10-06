@@ -64,3 +64,7 @@ If you'd like to run unit tests, take the following steps:
 ## Requirements
 
 Requirements for this tool are documented here, along with some rationale around decisions made: [requirements.md](./requirements.md)
+
+## Architecture
+
+Some useful diagrams detailing system architecture can be found here: [architecture.md](./architecture.md)
