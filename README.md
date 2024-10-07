@@ -27,7 +27,13 @@ This section details how to run the tool locally.
 The simplest way to test this tool is to run it within Docker/Docker Compose. To do so, take the following steps:
 
 1. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
-2. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/query-params.csv`.
+2. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool`.
+
+#### Overriding CLI parameters
+
+Any CLI parameters can be passed to that above Docker Compose command to override default values. Example overriding the default `--filename` and `--workers` parameters: `docker compose --env-file local.env run --build benchmarking-tool --filename=/query-params/extra-headers.csv --workers=8`
+
+To see all allowed CLI parameters, run the Docker Compose command with the `--help` flag: `docker compose --env-file local.env run --build benchmarking-tool --help`
 
 ### Running the benchmarking tool outside of Docker
 

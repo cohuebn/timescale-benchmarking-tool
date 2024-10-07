@@ -25,4 +25,5 @@ go.work.sum
 # env file
 .env
 
+# Allows generating a large file for testing without committing it
 query-params/large-file.csv
