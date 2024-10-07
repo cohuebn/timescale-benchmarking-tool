@@ -13,8 +13,7 @@ services:
       - timescale-benchmarking
   db-migrations:
     build: ./db-migrations
-    depends_on:
-      - db
+    depends_on: [db]
     environment:
       - FLYWAY_URL=jdbc:postgresql://${DB_INTERNAL_HOST}:${DB_PORT}/${DB_NAME}
       - FLYWAY_USER=${POSTGRES_USER}
@@ -33,8 +32,7 @@ services:
       - timescale-benchmarking
   benchmarking-tool:
     build: ./benchmarking-tool
-    depends_on:
-      - db
+    depends_on: [db]
     environment:
       - BENCHMARKING_TOOL_DATABASE_HOST=${DB_INTERNAL_HOST}
       - BENCHMARKING_TOOL_DATABASE_PORT=${DB_PORT}
@@ -43,8 +41,7 @@ services:
       - BENCHMARKING_TOOL_DATABASE_PASSWORD=${BENCHMARKING_PASSWORD}
     volumes:
       - ./query-params:/query-params
-    profiles:
-      - run-manually
+    profiles: [run-manually]
     networks:
       - timescale-benchmarking
 
