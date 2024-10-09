@@ -13,10 +13,10 @@ To run this tool locally, you'll need the following:
 1. [Docker](https://docs.docker.com/compose/install/).
 
 If you want to run entirely in Docker, none of the subsequent dependencies are necessary. If you want to
-run the benchmarking tool Go application outside Docker, the following will either be needed or helpful:
+run the benchmarking tool outside of Docker, the following will either be needed or helpful:
 
 1. [Go](https://go.dev/doc/install) (Required) - Go is needed to compile, test, etc.
-2. [Make](https://www.gnu.org/software/make/) (Optional) - Make is not required, but the included [Makefile](./benchmarking-tool/Makefile) can simplify installing, building, etc. See the targets in that file for `install`, `build`, etc.
+2. [Make](https://www.gnu.org/software/make/) (Optional) - Make is not required, but the included [Makefile](./benchmarking-tool/Makefile) can simplify getting dependencies, building, etc.
 
 ## Running locally
 
@@ -27,7 +27,7 @@ This section details how to run the tool locally.
 The simplest way to test this tool is to run it within Docker/Docker Compose. To do so, take the following steps:
 
 1. Run the database using Docker Compose. This command will use the local.env file in this repository and ensure the latest changes are included in running containers: `docker compose --env-file local.env up --build`
-2. Launch the benchmarking tool into the Docker Compose network created in the previous step: `docker compose --env-file local.env run --build benchmarking-tool`.
+2. Launch the benchmarking tool into the Docker Compose network created during the previous step: `docker compose --env-file local.env run --build benchmarking-tool`.
 
 #### Overriding CLI options
 
@@ -71,4 +71,4 @@ If you'd like to run unit tests, take the following steps:
 
 1. Go to the [benchmarking-tool](./benchmarking-tool/) directory: `cd benchmarking-tool/`
 2. Ensure you've downloaded all dependencies locally: `go mod download`
-3. Run all tests: `go test ./...`
+3. Run all tests: `go test ./...`. If you have Make installed, you can alternatively run `make test`
